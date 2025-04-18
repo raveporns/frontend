@@ -1,24 +1,31 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react';
+import { ReactKeycloakProvider } from '@react-keycloak/web';
+import keycloak from './keycloak';
+import Home from './Home';
+import Homepage from './pages/homepage'
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
+  const handleOnEvent = (event, error) => {
+    console.log('onKeycloakEvent', event, error);
+  };
+
+  const loadingComponent = <div>กำลังโหลด Keycloak...</div>;
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <ReactKeycloakProvider
+      authClient={keycloak}
+      onEvent={handleOnEvent}
+      LoadingComponent={loadingComponent}
+      initOptions={{
+        checkLoginIframe: false,
+        onLoad: 'check-sso',
+        redirectUri: 'http://localhost:3000/', 
+        pkceMethod: 'S256' 
+      }}
+    >
+      <Homepage />
+    </ReactKeycloakProvider>
   );
 }
 
