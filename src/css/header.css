@@ -9,6 +9,7 @@
     border-radius: 10px;
 
     
+    
     button{
         background-color: red;
         border-radius: 10px;
@@ -25,5 +26,25 @@
         background-color: white;
         color: black;
     }
+}
 
+#btn-api{
+    background-color: skyblue ;
+    color: black;
+}
+
+#btn-api:hover{
+    background-color: white ;
+}
+
+#user-info{
+    display: flex;
+    justify-content: start;
+    margin-top: 20px;
+}
+#p-apikey{
+    font-weight: bold;
+    font-size: 20px;
+    margin-top: 25px;
+    margin-right: 120px;
 }
