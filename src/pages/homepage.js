@@ -3,7 +3,7 @@ import { useKeycloak } from "@react-keycloak/web";
 import axios from "axios";
 import "../css/homepage.css";
 import Header from "../component/header";
-import Detail from "../component/detail";
+
 
 function Homepage() {
   const [selectedId, setSelectedId] = useState(null);
@@ -12,6 +12,10 @@ function Homepage() {
   const [apiData, setApiData] = useState(null);
   const [user, setUser] = useState(null);
   const [detailData, setDetailData] = useState(null);
+  const [apiEndpoint, setApiEndpoint] = useState("");
+  const [requestUrl, setRequestUrl] = useState("");
+  const [clicksSearch, setClicksSearch] = useState(0);
+  const [linkClicks, setLinkClicks] = useState(0);
 
   // ดึงข้อมูลผู้ใช้เมื่อ login แล้ว
   useEffect(() => {
@@ -42,6 +46,7 @@ function Homepage() {
   useEffect(() => {
     if (user && user.api_key) {
       fetchData();
+      fetchLinkClicks();
     }
   }, [user]);
 
@@ -66,12 +71,18 @@ function Homepage() {
 
   const handleSearch = async () => {
     if (!searchTerm) return;
+    const endpoint = "/search";
+    const request = `http://localhost:8080${endpoint}?keyword=${encodeURIComponent(
+      searchTerm
+    )}`;
+
     try {
-      const res = await axios.get("http://localhost:8080/search", {
-        params: { keyword: searchTerm },
+      const res = await axios.get(request, {
         headers: { Authorization: `${user.api_key}` },
       });
-      setApiData(res.data); // ใช้ res.data แทน res.json()
+      setApiData(res.data);
+      setApiEndpoint(endpoint);
+      setRequestUrl(request);
       console.log(res.data);
     } catch (err) {
       console.error("Search error:", err);
@@ -81,6 +92,12 @@ function Homepage() {
   const goToDetailPage = (id) => {
     setSelectedId(id);
     console.log(id);
+  };
+  const fetchLinkClicks = async () => {
+    const res = await axios.get("http://localhost:8080/stats/link-clicks", {
+      headers: { Authorization: `${user.api_key}` },
+    });
+    setLinkClicks(res.data.linkClicks);
   };
 
   const handleDetail = async (id) => {
@@ -102,22 +119,24 @@ function Homepage() {
 
   const handleClickLog = async (item) => {
     const clickLog = {
-      title: item.title,
+      client_id: user?.id || "anonymous",
+      endpoint: `/detail/${item.id}`,
+      method: "GET",
       timestamp: new Date().toISOString(),
-      referrer: window.location.href,
-      user: user?.email || "anonymous", // ถ้ามี keycloak
     };
   
     try {
-      await axios.post("http://localhost:8080/log", clickLog);
-      console.log("Log sent:", clickLog);
-      // ไปหน้า detail
+      await axios.post("http://localhost:8080/log/click", clickLog, {
+        headers: { Authorization: `${user.api_key}` },
+      });
+      console.log("Click log sent:", clickLog);
+  
+      // ไปยังหน้ารายละเอียด
       window.location.href = `/detail/${item.id}`;
     } catch (err) {
       console.error("Error logging click:", err);
     }
   };
-  
 
   return (
     <div className="bg-homepage">
@@ -126,7 +145,9 @@ function Homepage() {
           <div className="row" id="row-container">
             <div className="col-4" id="left">
               <div className="square-logo">
-                <h2 onClick={handleReload} className="clickable-title">JOBJAB group</h2>
+                <h2 onClick={handleReload} className="clickable-title">
+                  JOBJAB group
+                </h2>
               </div>
               <div id="line-logo"></div>
               <div className="data-API">
@@ -153,7 +174,7 @@ function Homepage() {
                         </p>
                         {/* คลิกเพื่อไปหน้ารายละเอียด */}
                         <button
-                          onClick={() => handleDetail(item.id)}
+                          onClick={() => handleClickLog(item)}
                           id="btn-detail"
                         >
                           <span>ดูรายละเอียด</span>
@@ -169,6 +190,60 @@ function Homepage() {
             <div className="col-8" id="right">
               <Header />
               <h1>ยินดีต้อนรับ, {keycloak.tokenParsed?.preferred_username}</h1>
+              <div className="container">
+                <section className="dashboard">
+                  <div className="stats">
+                    <div className="box">
+                      <div className="value">
+                        <p>จำนวนการกดลิงก์ดูรายละเอียดวันนี้: {linkClicks}</p>
+                      </div>
+                      {/* <p>Click Searches : {clicksSearch}</p> */}
+                      {/* เพิ่มข้อความแสดงผล */}
+                    </div>
+                  </div>
+                </section>
+                <div className="api-response">
+                  <section className="api-preview">
+                    <h2>API Response Preview</h2>
+
+                    <div className="field">
+                      <label>Endpoint:</label>
+                      <input type="text" value={apiEndpoint} readOnly />
+                    </div>
+
+                    <div className="field">
+                      <label>Request URL:</label>
+                      <input type="text" value={requestUrl} readOnly />
+                    </div>
+
+                    <div className="field">
+                      <label>JSON Response:</label>
+                      <textarea
+                        rows="6"
+                        readOnly
+                        value={
+                          apiData
+                            ? JSON.stringify(apiData, null, 2)
+                            : "No data available"
+                        }
+                      />
+                    </div>
+
+                    <div className="buttons">
+                      <button
+                        onClick={() =>
+                          navigator.clipboard.writeText(
+                            JSON.stringify(apiData, null, 2)
+                          )
+                        }
+                      >
+                        Copy JSON
+                      </button>
+                      <button onClick={handleSearch}>Test API</button>
+                    </div>
+                  </section>
+                </div>
+              </div>
               {detailData && (
                 <div>
                   <h3>รายละเอียดข้อมูล</h3>
