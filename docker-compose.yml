@@ -1,0 +1,12 @@
+services:
+  webservice:
+    build:
+      context: .
+    container_name: webservice_app
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+    command: npm start
+    environment:
+      NODE_ENV: development
