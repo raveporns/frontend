@@ -19,7 +19,7 @@ function App() {
       initOptions={{
         checkLoginIframe: false,
         onLoad: "check-sso",
-        redirectUri: "http://localhost:3000/",
+        redirectUri: "https://masters-increases-priority-auckland.trycloudflare.com",
         pkceMethod: "S256",
       }}
     >
