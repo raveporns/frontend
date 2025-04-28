@@ -19,7 +19,7 @@ function App() {
       initOptions={{
         checkLoginIframe: false,
         onLoad: "check-sso",
-        redirectUri: "https://affiliate-5tsn7xy3g-raveporns-projects.vercel.app",
+        redirectUri: "https://affiliate-service.vercel.app/",
         pkceMethod: "S256",
       }}
     >
