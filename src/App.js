@@ -19,7 +19,7 @@ function App() {
       initOptions={{
         checkLoginIframe: false,
         onLoad: "check-sso",
-        redirectUri: "https://projection-liver-costume-especially.trycloudflare.com",
+        redirectUri: "https://affiliate-5tsn7xy3g-raveporns-projects.vercel.app",
         pkceMethod: "S256",
       }}
     >
