@@ -19,7 +19,7 @@ function App() {
       initOptions={{
         checkLoginIframe: false,
         onLoad: "check-sso",
-        redirectUri: "https://difficulties-capital-lifestyle-don.trycloudflare.com",
+        redirectUri: "https://projection-liver-costume-especially.trycloudflare.com",
         pkceMethod: "S256",
       }}
     >
